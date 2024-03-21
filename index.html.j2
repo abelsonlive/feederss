@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
 <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta charset="utf-8">
     <title>Feederss</title>
     <link rel="stylesheet" type="text/css" href="/styles/main.css">
     <link rel="icon" type="image/png" href="/img/mini-flux-icon.png">
@@ -10,7 +11,7 @@
 <div class="sticky-container">
         <h2> 
             <a href="{{ app_url }}">
-                <img src="/img/mini-flux-icon.png" width="22" height="22" alt="{{ app_url }}" style="vertical-align: middle; margin-right: 5px;"/>
+                <img src="/img/mini-flux-icon.png" width="22" height="22" alt="{{ app_url }}" style="vertical-align: middle; margin-right: 5px;"/> • 
                 feederss
             </a>
         </h2>
@@ -19,7 +20,7 @@
 </div>
 <div class="grid-container">
     <div class="grid-item">
-        <h4 id="users"> 👤 users </h4>
+        <h4 id="users"> 👤 • users </h4>
         <ul>
             {% for user in data['users'] %}
                 <li> 
@@ -29,7 +30,7 @@
         </ul>
     </div>
     <div class="grid-item">
-        <h4 id="recent-feeds">📰 new feeds</h4>
+        <h4 id="recent-feeds">📰 • new feeds</h4>
         <ul>
             {% for feed in data['new_feeds'] %}
                 <li>
@@ -47,7 +48,7 @@
         </ul>
     </div>
     <div class="grid-item">
-        <h4 id="recent-stars">⭐ new stars</h4>
+        <h4 id="recent-stars">⭐ • new stars</h4>
         <ul>
             {% for entry in data['new_stars'] %}
                 <li>
@@ -64,13 +65,13 @@
 <br/>
 {% for user_id, user_data in data['user_data'].items() %}
     <div class="sticky-container">
-        <a href="#user-{{ user_data['name']}}"><h2 id="user-{{ user_data['name']}}">👤 {{ user_data['name'] }}</h1></a>
+        <a href="#user-{{ user_data['name']}}"><h2 id="user-{{ user_data['name']}}">👤 • {{ user_data['name'] }}</h1></a>
         <hr/>
     </div>
     <div class="grid-container">
     {% if user_data['stars'] %}
         <div class="grid-item">
-            <h4 id="user-stars-{{ user_data['name']}}">⭐ starred</h4>
+            <h4 id="user-stars-{{ user_data['name']}}">⭐ • starred</h4>
             <ul>
                 {% for entry in user_data['stars'] %}
                     <li>
