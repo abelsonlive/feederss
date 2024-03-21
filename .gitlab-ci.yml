@@ -19,7 +19,7 @@ update_index:
     - git config --global user.name "Brian Abelson"
     - git add public/index.html  # Stage the updated index.html
     - git commit -m "Update index.html"  # Commit the changes
-    - git push origin $CI_COMMIT_BRANCH  # Push changes to the current branch
+    - git push origin $CI_COMMIT_BRANCH || true  # Push changes to the current branch
 
 pages:
   stage: deploy
