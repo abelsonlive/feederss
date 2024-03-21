@@ -10,15 +10,11 @@ stages:
   - build
   - deploy
 
-generate_index:
+update_index:
   stage: build
   script:
     - python generate_index.py  # Replace with the name of your Python script
     - mv index.html public/  # Move generated index.html to a directory (e.g., public/)
-
-update_repo:
-  stage: build
-  script:
     - git add public/index.html  # Stage the updated index.html
     - git commit -m "Update index.html"  # Commit the changes
     - git push origin $CI_COMMIT_BRANCH  # Push changes to the current branch
