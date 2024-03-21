@@ -15,6 +15,8 @@ update_index:
   stage: build
   script:
     - python generate_homepage.py  # Replace with the name of your Python script
+    - git config --global user.email "brian@abelson.live"
+    - git config --global user.name "Brian Abelson"
     - git add public/index.html  # Stage the updated index.html
     - git commit -m "Update index.html"  # Commit the changes
     - git push origin $CI_COMMIT_BRANCH  # Push changes to the current branch
