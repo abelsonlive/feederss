@@ -1,8 +1,5 @@
 image: python:3.9
 
-variables:
-  SITE_URL: "https://your-gitlab-pages-url.com" # Update with your GitLab Pages URL
-
 before_script:
   - pip install -U pip  # Upgrade pip
   - pip install -r requirements.txt  # Install necessary dependencies
@@ -14,7 +11,7 @@ stages:
 update_index:
   stage: build
   script:
-    - ./update.sh
+    - python generate_homepage.py
 
 pages:
   stage: deploy
