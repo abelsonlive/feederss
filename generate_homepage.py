@@ -3,7 +3,6 @@ import os
 import base64
 from collections import defaultdict
 
-import boto3
 import jinja2
 import psycopg2
 import psycopg2.extras
@@ -14,14 +13,6 @@ load_dotenv()
 DB_URL = os.getenv("DB_URL")
 if not DB_URL:
     raise Exception("DB_URL environment variable is not set")
-
-DO_REGION = os.getenv("DO_REGION", "nyc3")
-DO_ENDPOINT = os.getenv("DO_ENDPOINT", "https://nyc3.digitaloceanspaces.com")
-DO_SPACE = os.getenv("DO_SPACE", "feederss")
-DO_ACCESS_KEY = os.getenv("DO_ACCESS_KEY")
-DO_SECRET_KEY = os.getenv("DO_SECRET_KEY")
-if not DO_ACCESS_KEY or not DO_SECRET_KEY:
-    raise Exception("DO_ACCESS_KEY or DO_SECRET_KEY environment variable is not set")
 
 FEED_QUERY = """
 select
@@ -89,18 +80,6 @@ starred_order <= 5
 TEMPLATE = os.path.join(os.path.dirname(__file__), "index.html.j2")
 HOMEPAGE = os.path.join(os.path.dirname(__file__), "public/index.html")
 
-def upload_file_to_do_space(local_path, remote_path="index.html", content_type="text/html"):
-    """
-    Upload a file to DigitalOcean Spaces using boto3
-    """
-    s3 = boto3.client('s3',
-                      region_name=DO_REGION,
-                      endpoint_url=DO_ENDPOINT,
-                      aws_access_key_id=DO_ACCESS_KEY,
-                      aws_secret_access_key=DO_SECRET_KEY)
-    # upload file and set acl to public-read
-    s3.upload_file(local_path, DO_SPACE, remote_path, ExtraArgs={'ACL': 'public-read', 'ContentType': content_type})
-
 def query_db(query: str):
     """
     Query the database and return the results as a list of dictionaries
@@ -159,20 +138,13 @@ def get_homepage_data():
 
 def generate_homepage(data):
     jinja2.Template(open(TEMPLATE).read()).stream(users=data).dump(HOMEPAGE)
-    return HOMEPAGE
-
-def upload_homepage(local_path):
-    upload_file_to_do_space(local_path, "index.html")
-    
 
 def main():
     print("!"*60)
     print("Generating homepage...")
     print("!"*60)
     data = get_homepage_data()
-    local_path = generate_homepage(data)
-    upload_file_to_do_space(local_path)
+    generate_homepage(data)
 
 if __name__ == "__main__":
     main()
-
