@@ -27,24 +27,32 @@ HOMEPAGE = os.path.join(os.path.dirname(__file__), "public/index.html")
 
 # queries
 USERS_QUERY = """
+with user_data as (
+    select
+        users.id as user_id,
+        users.username as user_name,
+        count(distinct feeds.id) as feeds_count,
+        count(distinct entries.id) as starred_count,
+        count(distinct categories.id) as category_count
+    from
+        users
+    left join
+        feeds on users.id = feeds.user_id
+    left join
+        entries on feeds.id = entries.feed_id and entries.starred = true
+    left join
+        categories on users.id = categories.user_id
+    group by
+        1,2
+    order by
+        2 asc
+)
 select
-    users.id as user_id,
-    users.username as user_name,
-    count(distinct feeds.id) as feeds_count,
-    count(distinct entries.id) as starred_count,
-    count(distinct categories.id) as category_count
+    * 
 from
-    users
-left join
-    feeds on users.id = feeds.user_id
-left join
-    entries on feeds.id = entries.feed_id and entries.starred = true
-left join
-    categories on users.id = categories.user_id
-group by
-    1,2
-order by
-    2 asc
+    user_data
+where
+    feeds_count > 0
 """
 
 ALL_FEEDS_QUERY = """
