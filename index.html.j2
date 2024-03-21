@@ -13,6 +13,7 @@
 
 {% for user_id, user_data in users.items() %}
     <h1>{{ user_data['name'] }}</h1>
+    <hr/>
     {% if user_data['starred_entries'] %}
         <h2>⭐ stars</h2>
         <ul>
@@ -24,7 +25,7 @@
     <h2>📰 feeds</h2>
     <ul>
         {% for category, feeds in user_data['feeds'].items() %}
-            <h3>{{ category }}</h3>
+            <h4>{{ category }}</h4>
             {% for feed_data in feeds %}
                 <li><a href="{{ feed_data['site_url']}}" target="_blank">{{ feed_data['feed_title'] }}</a> ({{feed_data["feed_url"] }})</li>
             {% endfor %}

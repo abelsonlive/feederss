@@ -14,7 +14,7 @@ stages:
 update_index:
   stage: build
   script:
-    - ./deploy.sh
+    - ./update.sh
 
 pages:
   stage: deploy
