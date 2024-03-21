@@ -1,0 +1,33 @@
+image: python:3.9
+
+variables:
+  SITE_URL: "https://your-gitlab-pages-url.com" # Update with your GitLab Pages URL
+
+before_script:
+  - pip install requirements.txt  # Install necessary dependencies
+
+stages:
+  - build
+  - deploy
+
+generate_index:
+  stage: build
+  script:
+    - python generate_index.py  # Replace with the name of your Python script
+    - mv index.html public/  # Move generated index.html to a directory (e.g., public/)
+
+update_repo:
+  stage: build
+  script:
+    - git add public/index.html  # Stage the updated index.html
+    - git commit -m "Update index.html"  # Commit the changes
+    - git push origin $CI_COMMIT_BRANCH  # Push changes to the current branch
+
+pages:
+  stage: deploy
+  artifacts:
+    paths:
+      - public
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

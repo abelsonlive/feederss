@@ -88,7 +88,7 @@ starred_order <= 5
 """
 # get absolute path of the template + homepage
 TEMPLATE = os.path.join(os.path.dirname(__file__), "index.html.j2")
-HOMEPAGE = os.path.join(os.path.dirname(__file__), "index.html")
+HOMEPAGE = os.path.join(os.path.dirname(__file__), "public/index.html")
 
 def upload_file_to_do_space(local_path, remote_path="index.html", content_type="text/html"):
     """
