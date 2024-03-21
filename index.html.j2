@@ -1,36 +1,109 @@
-<html>
+<!DOCTYPE html>
 <meta charset="utf-8">
 <head>
     <title>Feederss</title>
-    <style>
-    body {
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    } 
-    </style>
-
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+    <link rel="icon" type="image/png" href="/img/mini-flux-icon.png">
+    <script type="text/javascript" src="/js/main.js"></script>
 </head>
 <body>
-
-{% for user_id, user_data in users.items() %}
-    <h1>{{ user_data['name'] }}</h1>
+<div class="sticky-container">
+        <h2> 
+            <a href="{{ app_url }}">
+                <img src="/img/mini-flux-icon.png" width="22" height="22" alt="{{ app_url }}" style="vertical-align: middle; margin-right: 5px;"/>
+                feederss
+            </a>
+        </h2>
+    </a>
     <hr/>
-    {% if user_data['starred_entries'] %}
-        <h2>⭐ stars</h2>
+</div>
+<div class="grid-container">
+    <div class="grid-item">
+        <h4 id="users"> 👤 users </h4>
         <ul>
-            {% for entry in user_data['starred_entries'] %}
-                <li><a href="{{ entry['entry_url'] }}" target="_blank">{{ entry['entry_title'] }} – {{entry['entry_author']}}</a> ({{ entry['entry_published_at'] }})</li>
+            {% for user in data['users'] %}
+                <li> 
+                    <a href="#user-{{ user['user_name'] }}">{{ user['user_name'] }} ({{ user['feeds_count'] }} 📰 • {{ user['category_count'] }} 🙀 • {{ user['starred_count'] }} ⭐) </a>
+                </li>
             {% endfor %}
         </ul>
-    {% endif %}
-    <h2>📰 feeds</h2>
-    <ul>
-        {% for category, feeds in user_data['feeds'].items() %}
-            <h4>{{ category }}</h4>
-            {% for feed_data in feeds %}
-                <li><a href="{{ feed_data['site_url']}}" target="_blank">{{ feed_data['feed_title'] }}</a> ({{feed_data["feed_url"] }})</li>
+    </div>
+    <div class="grid-item">
+        <h4 id="recent-feeds">📰 new feeds</h4>
+        <ul>
+            {% for feed in data['new_feeds'] %}
+                <li>
+                    <a href="{{ feed['site_url']}}" target="_blank">
+                        <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 5px;"/>
+                        {{ feed['feed_title'] }}
+                    </a> 
+                    (by: <a href="#user-{{ feed["user_name"] }}">{{ feed["user_name"] }}</a>)
+                    <span class="copy-text-to-clipboard-icon">
+                        <img src="/img/copy.png" width="16" height="16" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                        <span class="copy-text-to-clipboard-message">copied</span>
+                    </span>
+                </li>
             {% endfor %}
-        {% endfor %}
-    </ul>
+        </ul>
+    </div>
+    <div class="grid-item">
+        <h4 id="recent-stars">⭐ new stars</h4>
+        <ul>
+            {% for entry in data['new_stars'] %}
+                <li>
+                    <a href="{{ entry['site_url']}}" target="_blank">
+                        <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}" style="vertical-align: middle; margin-right: 5px;"/>
+                    </a> 
+                    <a href="{{ entry['entry_url'] }}" target="_blank">{{ entry['entry_title'] }} – {{entry['entry_author']}}</a>
+                    (by: <a href="#user-{{ entry["user_name"] }}">{{ entry["user_name"] }}</a>)
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<br/>
+{% for user_id, user_data in data['user_data'].items() %}
+    <div class="sticky-container">
+        <a href="#user-{{ user_data['name']}}"><h2 id="user-{{ user_data['name']}}">👤 {{ user_data['name'] }}</h1></a>
+        <hr/>
+    </div>
+    <div class="grid-container">
+    {% if user_data['stars'] %}
+        <div class="grid-item">
+            <h4 id="user-stars-{{ user_data['name']}}">⭐ starred</h4>
+            <ul>
+                {% for entry in user_data['stars'] %}
+                    <li>
+                        <a href="{{ entry['site_url']}}" target="_blank">
+                            <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}" style="vertical-align: middle; margin-right: 5px;"/>
+                        </a> 
+                        <a href="{{ entry['entry_url'] }}" target="_blank">{{ entry['entry_title'] }} – {{entry['entry_author']}}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% for category, category_data in user_data['feed_categories'].items() %}
+        <div class="grid-item">
+            <h4 id="user-category-{{ category_data['id'] }}">{{ category }}</h4>
+            <ul>
+            {% for feed in category_data['feeds'] %}
+                <li>
+                <a href="{{ feed['site_url']}}" target="_blank">
+                    <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 5px;"/>
+                    {{ feed['feed_title'] }}
+                </a> 
+                <span class="copy-text-to-clipboard-icon">
+                    <img src="/img/copy.png" width="16" height="16" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                    <span class="copy-text-to-clipboard-message">copied feed URL</span>
+                </span>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+    </div>
 {% endfor %}
 </body>
 </html>
