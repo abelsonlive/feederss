@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 python generate_homepage.py  # Replace with the name of your Python script
 git config --global user.email "brian@abelson.live"
 git config --global user.name "Brian Abelson"
