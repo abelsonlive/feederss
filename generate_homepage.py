@@ -166,6 +166,9 @@ def upload_homepage(local_path):
     
 
 def main():
+    print("!"*60)
+    print("Generating homepage...")
+    print("!"*60)
     data = get_homepage_data()
     local_path = generate_homepage(data)
     upload_file_to_do_space(local_path)
