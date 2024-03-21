@@ -13,7 +13,7 @@ stages:
 update_index:
   stage: build
   script:
-    - python generate_index.py  # Replace with the name of your Python script
+    - python generate_homepage.py  # Replace with the name of your Python script
     - mv index.html public/  # Move generated index.html to a directory (e.g., public/)
     - git add public/index.html  # Stage the updated index.html
     - git commit -m "Update index.html"  # Commit the changes
