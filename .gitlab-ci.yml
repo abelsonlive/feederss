@@ -20,6 +20,7 @@ update_index:
     - git add public/index.html  # Stage the updated index.html
     - git commit -m "Update index.html"  # Commit the changes
     - git push origin $CI_COMMIT_BRANCH || true  # Push changes to the current branch
+    - echo 'done!'
 
 pages:
   stage: deploy
