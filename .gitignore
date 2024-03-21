@@ -2,3 +2,4 @@
 *.pyc
 .env
 public/index.html
+.DS_Store

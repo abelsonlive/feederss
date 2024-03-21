@@ -14,8 +14,8 @@ ul {
 
 body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    background-color: #222;
-    color: #aaa;
+    background-color: #333;
+    color: #bbb;
 }
 
 h4 {
@@ -48,7 +48,8 @@ h2 {
     top: 0;
     padding: 0;
     margin: 0;
-    background-color: #222;
+    background-color: #333;
+    z-index: 100;
 }
 
 .grid-container {
@@ -77,8 +78,15 @@ h2 {
     }
 }
 
-.copy-text-to-clipboard-icon {
+.copy-text-to-clipboard-icon > img {
+    z-index: -1;
+    vertical-align: middle; 
     cursor: pointer;
+    opacity: 0.5;
+}
+
+.copy-text-to-clipboard-icon > img:hover {
+    opacity: 1;
 }
 
 .copy-text-to-clipboard-message {

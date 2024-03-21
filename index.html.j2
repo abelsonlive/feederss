@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <head>
     <meta name="viewport" content="width=device-width" />
     <meta charset="utf-8">
@@ -11,7 +12,7 @@
 <div class="sticky-container">
         <h2> 
             <a href="{{ app_url }}">
-                <img src="/img/mini-flux-icon.png" width="22" height="22" alt="{{ app_url }}" style="vertical-align: middle; margin-right: 5px;"/> • 
+                <img src="/img/mini-flux-icon.png" width="22" height="22" alt="{{ app_url }}" style="vertical-align: middle; margin-right: 0.125em;"/> • 
                 feederss
             </a>
         </h2>
@@ -35,13 +36,13 @@
             {% for feed in data['new_feeds'] %}
                 <li>
                     <a href="{{ feed['site_url']}}" target="_blank">
-                        <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 5px;"/>
+                        <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
                         {{ feed['feed_title'] }}
                     </a> 
-                    (by: <a href="#user-{{ feed["user_name"] }}">{{ feed["user_name"] }}</a>)
+                    (<a href="#user-{{ feed["user_name"] }}">👤 • {{ feed["user_name"] }}</a>)
                     <span class="copy-text-to-clipboard-icon">
-                        <img src="/img/copy.png" width="16" height="16" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
-                        <span class="copy-text-to-clipboard-message">copied</span>
+                        <img src="/img/copy.png" width="14" height="14" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                        <span class="copy-text-to-clipboard-message">copied feed URL</span>
                     </span>
                 </li>
             {% endfor %}
@@ -53,10 +54,10 @@
             {% for entry in data['new_stars'] %}
                 <li>
                     <a href="{{ entry['site_url']}}" target="_blank">
-                        <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}" style="vertical-align: middle; margin-right: 5px;"/>
+                        <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
                     </a> 
                     <a href="{{ entry['entry_url'] }}" target="_blank">{{ entry['entry_title'] }} – {{entry['entry_author']}}</a>
-                    (by: <a href="#user-{{ entry["user_name"] }}">{{ entry["user_name"] }}</a>)
+                    (<a href="#user-{{ entry["user_name"] }}">👤 • {{ entry["user_name"] }}</a>)
                 </li>
             {% endfor %}
         </ul>
@@ -76,7 +77,7 @@
                 {% for entry in user_data['stars'] %}
                     <li>
                         <a href="{{ entry['site_url']}}" target="_blank">
-                            <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}" style="vertical-align: middle; margin-right: 5px;"/>
+                            <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
                         </a> 
                         <a href="{{ entry['entry_url'] }}" target="_blank">{{ entry['entry_title'] }} – {{entry['entry_author']}}</a>
                     </li>
@@ -92,11 +93,11 @@
             {% for feed in category_data['feeds'] %}
                 <li>
                 <a href="{{ feed['site_url']}}" target="_blank">
-                    <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 5px;"/>
+                    <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
                     {{ feed['feed_title'] }}
                 </a> 
                 <span class="copy-text-to-clipboard-icon">
-                    <img src="/img/copy.png" width="16" height="16" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                    <img src="/img/copy.png" width="14" height="14" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
                     <span class="copy-text-to-clipboard-message">copied feed URL</span>
                 </span>
                 </li>
