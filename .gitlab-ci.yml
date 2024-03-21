@@ -25,6 +25,8 @@ update_repo:
 
 pages:
   stage: deploy
+  script:
+    - "echo deploying!"
   artifacts:
     paths:
       - public
