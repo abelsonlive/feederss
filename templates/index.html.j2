@@ -11,7 +11,7 @@
 <body>
 <div id="header" class="sticky-container">
     <span id="feeders-logo"> 
-        <a href="{{ app_url }}" alt="go to miniflux" target="_blank">
+        <a class="header-link" href="{{ app_url }}" alt="go to miniflux">
             <img src="/img/mini-flux-icon.png" width="22" height="22" alt="{{ app_url }}" style="vertical-align: middle; margin-right: 0.125em;"/>
         </a> • 
         <a href="/" alt="feederss home">
@@ -46,10 +46,10 @@
                         <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
                         {{ feed['feed_title'] }}
                     </a> 
-                    (<a href="#user-{{ feed["user_name"] }}">👤 • {{ feed["user_name"] }}</a>)
-                    <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}" target="_blank">
+                    (<a href="#user-{{ feed["user_name"] }}">👤 • {{ feed["user_name"] }}</a>) • 
+                    <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}">
                         <span class="add-to-miniflux">
-                                <img src="/img/copy.png" width="14" height="14" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                            <img src="/img/copy.png" width="16" height="16" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
                         </span>
                     </a>
                 </li>
@@ -64,7 +64,9 @@
                     <a href="{{ entry['site_url']}}" target="_blank">
                         <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
                     </a> 
-                    <a href="{{ entry['entry_url'] }}" target="_blank">{{ entry['entry_title'] }} – {{entry['entry_author']}}</a>
+                    <a href="{{ entry['entry_url'] }}" target="_blank">
+                        {{ entry['entry_title'] }} – {{entry['entry_author']}}
+                    </a>
                     (<a href="#user-{{ entry["user_name"] }}">👤 • {{ entry["user_name"] }}</a>)
                 </li>
             {% endfor %}
@@ -104,9 +106,9 @@
                         <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
                         {{ feed['feed_title'] }}
                     </a> 
-                    <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}" target="_blank">
+                    <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}">  • 
                         <span class="add-to-miniflux">
-                                <img src="/img/copy.png" width="14" height="14" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                            <img src="/img/copy.png" width="16" height="16" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
                         </span>
                     </a>
                 </li>
