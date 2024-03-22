@@ -40,10 +40,11 @@
                         {{ feed['feed_title'] }}
                     </a> 
                     (<a href="#user-{{ feed["user_name"] }}">👤 • {{ feed["user_name"] }}</a>)
-                    <span class="copy-text-to-clipboard-icon">
-                        <img src="/img/copy.png" width="14" height="14" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
-                        <span class="copy-text-to-clipboard-message">copied feed URL</span>
-                    </span>
+                    <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}" target="_blank">
+                        <span class="add-to-miniflux">
+                                <img src="/img/copy.png" width="14" height="14" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                        </span>
+                    </a>
                 </li>
             {% endfor %}
         </ul>
@@ -92,14 +93,15 @@
             <ul>
             {% for feed in category_data['feeds'] %}
                 <li>
-                <a href="{{ feed['site_url']}}" target="_blank">
-                    <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
-                    {{ feed['feed_title'] }}
-                </a> 
-                <span class="copy-text-to-clipboard-icon">
-                    <img src="/img/copy.png" width="14" height="14" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
-                    <span class="copy-text-to-clipboard-message">copied feed URL</span>
-                </span>
+                    <a href="{{ feed['site_url']}}" target="_blank">
+                        <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
+                        {{ feed['feed_title'] }}
+                    </a> 
+                    <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}" target="_blank">
+                        <span class="add-to-miniflux">
+                                <img src="/img/copy.png" width="14" height="14" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                        </span>
+                    </a>
                 </li>
             {% endfor %}
             </ul>
