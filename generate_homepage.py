@@ -129,6 +129,7 @@ order by
     entries.published_at desc
 """
 
+
 RECENT_STARRED_ENTRIES_QUERY = f"""
 with starred_entries as (
     {STARRED_ENTRIES_QUERY}   
@@ -232,9 +233,9 @@ def get_homepage_data():
         # set the user name
         data["user_data"][f["user_id"]]["name"] = f["user_name"]
         # add the feed to the user's feeds
-        data["user_data"][f["user_id"]]["feed_categories"][f["feed_category"]]["id"] = f[
-            "feed_category_id"
-        ]
+        data["user_data"][f["user_id"]]["feed_categories"][f["feed_category"]]["id"] = (
+            f["feed_category_id"]
+        )
         data["user_data"][f["user_id"]]["feed_categories"][f["feed_category"]][
             "feeds"
         ].append(f)
@@ -249,7 +250,9 @@ def get_homepage_data():
 
 
 def generate_homepage(data):
-    jinja2.Template(open(TEMPLATE).read()).stream(data=data, app_url=APP_URL).dump(HOMEPAGE)
+    jinja2.Template(open(TEMPLATE).read()).stream(data=data, app_url=APP_URL).dump(
+        HOMEPAGE
+    )
 
 
 def main():
