@@ -3,3 +3,4 @@
 .env
 public/*.html
 .DS_Store
+__pycache__
