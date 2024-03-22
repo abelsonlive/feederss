@@ -7,7 +7,7 @@ before_script:
 pages:
   stage: deploy
   script:
-    - python generate_homepage.py
+    - python generate_site.py
   artifacts:
     paths:
       - public

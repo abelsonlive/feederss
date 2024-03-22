@@ -41,6 +41,21 @@ h2 {
     margin: 0.125em;
 }
 
+#header {
+    font-size: 24px;
+    text-decoration: bold;
+}
+
+.header-link {
+    opacity: 0.5;
+}
+
+.header-link:hover {
+    margin: 0;
+    padding: 0;
+    opacity: 1;
+}
+
 .sticky-container {
     position: -webkit-sticky;
     /* Safari */

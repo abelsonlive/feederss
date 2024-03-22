@@ -1,5 +1,5 @@
 .venv/
 *.pyc
 .env
-public/index.html
+public/*.html
 .DS_Store
