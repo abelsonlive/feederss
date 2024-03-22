@@ -109,7 +109,8 @@ select
     entries.author as entry_author,
     entries.title as entry_title,
     entries.url as entry_url,
-    entries.published_at as entry_published_at
+    entries.published_at as entry_published_at,
+    entries.changed_at as entry_changed_at
 from
     entries
 left join
@@ -137,7 +138,7 @@ select
 from
     starred_entries
 order by
-    entry_published_at desc
+    entry_changed_at desc
 limit 
     {NUM_RECENT_STARRED_ENTRIES}
 """
