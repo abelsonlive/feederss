@@ -57,7 +57,7 @@ h2 {
     opacity: 1;
 }
 
-.sticky-container {
+.sticky {
     position: -webkit-sticky;
     /* Safari */
     position: sticky;

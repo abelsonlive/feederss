@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <div id="header" class="sticky-container">
+    <div id="header" class="sticky">
         <span id="feeders-logo">
             <a class="header-link" href="{{ app_url }}" alt="go to miniflux">
                 <img src="/img/mini-flux-icon.png" width="22" height="22" alt="{{ app_url }}"
@@ -81,7 +81,7 @@
     </div>
     <br />
     {% for user_id, user_data in data['user_data'].items() %}
-    <div class="sticky-container">
+    <div class="sticky">
         <a href="#user-{{ user_data['name']}}">
             <h2 id="user-{{ user_data['name']}}">👤 • {{ user_data['name'] }}</h1>
         </a>
