@@ -8,115 +8,128 @@
     <link rel="icon" type="image/png" href="/img/mini-flux-icon.png">
     <script type="text/javascript" src="/js/main.js"></script>
 </head>
+
 <body>
-<div id="header" class="sticky-container">
-    <span id="feeders-logo"> 
-        <a class="header-link" href="{{ app_url }}" alt="go to miniflux">
-            <img src="/img/mini-flux-icon.png" width="22" height="22" alt="{{ app_url }}" style="vertical-align: middle; margin-right: 0.125em;"/>
-        </a> • 
-        <a href="/" alt="feederss home">
-            <strong>feederss</strong>
-        </a> • 
-        <a class="header-link" href="{{ chat_url }}" alt="signal chat">
-            💬
-        </a> •
-        <a class="header-link" href="/about.html">
-            ❔
-        </a>
-    </span>
-    <hr/>
-</div>
-<div class="grid-container">
-    <div class="grid-item">
-        <h4 id="users"> 👤 • users </h4>
-        <ul>
-            {% for user in data['users'] %}
-                <li> 
-                    <a href="#user-{{ user['user_name'] }}">{{ user['user_name'] }} ({{ user['feeds_count'] }} 📰 • {{ user['category_count'] }} 🙀 • {{ user['starred_count'] }} ⭐) </a>
-                </li>
-            {% endfor %}
-        </ul>
+    <div id="header" class="sticky-container">
+        <span id="feeders-logo">
+            <a class="header-link" href="{{ app_url }}" alt="go to miniflux">
+                <img src="/img/mini-flux-icon.png" width="22" height="22" alt="{{ app_url }}"
+                    style="vertical-align: middle; margin-right: 0.125em;" />
+            </a> •
+            <a href="/" alt="feederss home">
+                <strong>feederss</strong>
+            </a> •
+            <a class="header-link" href="{{ chat_url }}" alt="signal chat">
+                💬
+            </a> •
+            <a class="header-link" href="/about.html">
+                ❔
+            </a>
+        </span>
+        <hr />
     </div>
-    <div class="grid-item">
-        <h4 id="recent-feeds">📰 • new feeds</h4>
-        <ul>
-            {% for feed in data['new_feeds'] %}
+    <div class="grid-container">
+        <div class="grid-item">
+            <h4 id="users"> 👤 • users </h4>
+            <ul>
+                {% for user in data['users'] %}
+                <li>
+                    <a href="#user-{{ user['user_name'] }}">{{ user['user_name'] }} ({{ user['feeds_count'] }} 📰 • {{
+                        user['category_count'] }} 🙀 • {{ user['starred_count'] }} ⭐) </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="grid-item">
+            <h4 id="recent-feeds">📰 • new feeds</h4>
+            <ul>
+                {% for feed in data['new_feeds'] %}
                 <li>
                     <a href="{{ feed['site_url']}}" target="_blank">
-                        <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
+                        <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}"
+                            style="vertical-align: middle; margin-right: 0.125em;" />
                         {{ feed['feed_title'] }}
-                    </a> 
-                    (<a href="#user-{{ feed["user_name"] }}">👤 • {{ feed["user_name"] }}</a>) • 
+                    </a>
+                    (<a href="#user-{{ feed[" user_name"] }}">👤 • {{ feed["user_name"] }}</a>) •
                     <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}">
                         <span class="add-to-miniflux">
-                            <img src="/img/copy.png" width="16" height="16" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                            <img src="/img/copy.png" width="16" height="16" alt="copy feed url"
+                                style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}" />
                         </span>
                     </a>
                 </li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="grid-item">
-        <h4 id="recent-stars">⭐ • new stars</h4>
-        <ul>
-            {% for entry in data['new_stars'] %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="grid-item">
+            <h4 id="recent-stars">⭐ • new stars</h4>
+            <ul>
+                {% for entry in data['new_stars'] %}
                 <li>
                     <a href="{{ entry['site_url']}}" target="_blank">
-                        <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
-                    </a> 
+                        <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}"
+                            style="vertical-align: middle; margin-right: 0.125em;" />
+                    </a>
                     <a href="{{ entry['entry_url'] }}" target="_blank">
                         {{ entry['entry_title'] }} – {{entry['entry_author']}}
                     </a>
-                    (<a href="#user-{{ entry["user_name"] }}">👤 • {{ entry["user_name"] }}</a>)
+                    (<a href="#user-{{ entry[" user_name"] }}">👤 • {{ entry["user_name"] }}</a>)
                 </li>
-            {% endfor %}
-        </ul>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-</div>
-<br/>
-{% for user_id, user_data in data['user_data'].items() %}
+    <br />
+    {% for user_id, user_data in data['user_data'].items() %}
     <div class="sticky-container">
-        <a href="#user-{{ user_data['name']}}"><h2 id="user-{{ user_data['name']}}">👤 • {{ user_data['name'] }}</h1></a>
-        <hr/>
+        <a href="#user-{{ user_data['name']}}">
+            <h2 id="user-{{ user_data['name']}}">👤 • {{ user_data['name'] }}</h1>
+        </a>
+        <hr />
     </div>
     <div class="grid-container">
-    {% if user_data['stars'] %}
+        {% if user_data['stars'] %}
         <div class="grid-item">
             <h4 id="user-stars-{{ user_data['name']}}">⭐ • starred</h4>
             <ul>
                 {% for entry in user_data['stars'] %}
-                    <li>
-                        <a href="{{ entry['site_url']}}" target="_blank">
-                            <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
-                        </a> 
-                        <a href="{{ entry['entry_url'] }}" target="_blank">{{ entry['entry_title'] }} – {{entry['entry_author']}}</a>
-                    </li>
+                <li>
+                    <a href="{{ entry['site_url']}}" target="_blank">
+                        <img src="{{ entry['feed_icon'] }}" width="16" height="16" alt="{{ entry['feed_title'] }}"
+                            style="vertical-align: middle; margin-right: 0.125em;" />
+                    </a>
+                    <a href="{{ entry['entry_url'] }}" target="_blank">{{ entry['entry_title'] }} –
+                        {{entry['entry_author']}}</a>
+                </li>
                 {% endfor %}
             </ul>
         </div>
-    {% endif %}
+        {% endif %}
 
-    {% for category, category_data in user_data['feed_categories'].items() %}
+        {% for category, category_data in user_data['feed_categories'].items() %}
         <div class="grid-item">
             <h4 id="user-category-{{ category_data['id'] }}">{{ category }}</h4>
             <ul>
-            {% for feed in category_data['feeds'] %}
+                {% for feed in category_data['feeds'] %}
                 <li>
                     <a href="{{ feed['site_url']}}" target="_blank">
-                        <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}" style="vertical-align: middle; margin-right: 0.125em;"/>
+                        <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}"
+                            style="vertical-align: middle; margin-right: 0.125em;" />
                         {{ feed['feed_title'] }}
-                    </a> • 
+                    </a> •
                     <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}">
                         <span class="add-to-miniflux">
-                            <img src="/img/copy.png" width="16" height="16" alt="copy feed url" style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}"/>
+                            <img src="/img/copy.png" width="16" height="16" alt="copy feed url"
+                                style="vertical-align: middle; margin-left: 5px;" data-copy="{{ feed['feed_url'] }}" />
                         </span>
                     </a>
                 </li>
-            {% endfor %}
+                {% endfor %}
             </ul>
         </div>
-    {% endfor %}
+        {% endfor %}
     </div>
-{% endfor %}
+    {% endfor %}
 </body>
+
 </html>
