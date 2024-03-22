@@ -17,8 +17,8 @@ if not DB_URL:
     raise Exception("DB_URL environment variable is not set")
 
 NUM_USER_STARRED_ENTRIES = os.getenv("NUM_USER_STARRED_ENTRIES", 10)
-NUM_RECENT_STARRED_ENTRIES = os.getenv("NUM_RECENT_STARRED_ENTRIES", 10)
-NUM_RECENTLY_ADDED_FEEDS = os.getenv("NUM_RECENTLY_ADDED_FEEDS", 10)
+NUM_RECENT_STARRED_ENTRIES = os.getenv("NUM_RECENT_STARRED_ENTRIES", 20)
+NUM_RECENTLY_ADDED_FEEDS = os.getenv("NUM_RECENTLY_ADDED_FEEDS", 20)
 
 # get absolute path of the template + homepage
 HOMEPATE_TMPL = os.path.join(os.path.dirname(__file__), "templates/index.html.j2")
