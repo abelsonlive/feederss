@@ -48,7 +48,11 @@
                     <a href="{{ feed['site_url']}}" target="_blank">
                         <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}"
                             style="vertical-align: middle; margin-right: 0.125em;" />
-                        {{ feed['feed_title'] }}
+                        {% if feed['feed_title'] | length > 50 %}
+                            {{ feed['feed_title'][0:50] }}...
+                        {% else %}
+                            {{ feed['feed_title'] }}
+                        {% endif %}
                     </a>
                     (<a href="#user-{{ feed['user_name'] }}">👤 • {{ feed["user_name"] }}</a>) •
                     <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}">
@@ -115,7 +119,11 @@
                     <a href="{{ feed['site_url']}}" target="_blank">
                         <img src="{{ feed['feed_icon'] }}" width="16" height="16" alt="{{ feed['feed_title'] }}"
                             style="vertical-align: middle; margin-right: 0.125em;" />
-                        {{ feed['feed_title'] }}
+                        {% if feed['feed_title'] | length > 50 %}
+                            {{ feed['feed_title'][0:50] }}...
+                        {% else %}
+                            {{ feed['feed_title'] }}
+                        {% endif %}
                     </a> •
                     <a href="{{ app_url }}/bookmarklet?uri={{ feed['feed_url'] }}">
                         <span class="add-to-miniflux">

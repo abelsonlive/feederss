@@ -27,6 +27,16 @@ ABOUT_TMPL = os.path.join(
 ABOUT_DEST = os.path.join(os.path.dirname(__file__), "../public/about.html")
 
 
+def binary_to_base64(binary_data, content_type: str):
+    """
+    Convert binary data to base64 with the specified content type
+    """
+    if not binary_data:
+        return DEFAULT_ICON
+    content = base64.b64encode(binary_data.tobytes()).decode("utf-8")
+    return f"data:{content_type};base64,{content}"
+
+
 def query_db(
     query: str,
     base64_content_field: str = "feed_icon",
@@ -53,16 +63,6 @@ def query_db(
             return data
     finally:
         conn.close()
-
-
-def binary_to_base64(binary_data, content_type: str):
-    """
-    Convert binary data to base64 with the specified content type
-    """
-    if not binary_data:
-        return DEFAULT_ICON
-    content = base64.b64encode(binary_data.tobytes()).decode("utf-8")
-    return f"data:{content_type};base64,{content}"
 
 
 def get_site_data():
