@@ -1,5 +1,6 @@
 import os
 import base64
+import json
 from datetime import datetime
 from collections import defaultdict
 
@@ -17,14 +18,11 @@ from .queries import (
 )
 
 # get absolute path of the template + homepage
-HOMEPAGE_TMPL = os.path.join(
-    os.path.dirname(__file__), "./templates/index.html.j2"
-)
+HOMEPAGE_TMPL = os.path.join(os.path.dirname(__file__), "./templates/index.html.j2")
 HOMEPAGE_DEST = os.path.join(os.path.dirname(__file__), "../public/index.html")
-ABOUT_TMPL = os.path.join(
-    os.path.dirname(__file__), "./templates/about.html.j2"
-)
+ABOUT_TMPL = os.path.join(os.path.dirname(__file__), "./templates/about.html.j2")
 ABOUT_DEST = os.path.join(os.path.dirname(__file__), "../public/about.html")
+DATA_DEST = os.path.join(os.path.dirname(__file__), "../public/data.json")
 
 
 def binary_to_base64(binary_data, content_type: str):
@@ -77,9 +75,7 @@ def get_site_data():
         "user_data": defaultdict(
             lambda: {
                 "name": None,
-                "feed_categories": defaultdict(
-                    lambda: {"id": None, "feeds": []}
-                ),
+                "feed_categories": defaultdict(lambda: {"id": None, "feeds": []}),
                 "stars": [],
             }
         ),
@@ -99,9 +95,9 @@ def get_site_data():
         # set the user name
         data["user_data"][f["user_id"]]["name"] = f["user_name"]
         # add the feed to the user's feeds
-        data["user_data"][f["user_id"]]["feed_categories"][f["feed_category"]][
-            "id"
-        ] = f["feed_category_id"]
+        data["user_data"][f["user_id"]]["feed_categories"][f["feed_category"]]["id"] = (
+            f["feed_category_id"]
+        )
         data["user_data"][f["user_id"]]["feed_categories"][f["feed_category"]][
             "feeds"
         ].append(f)
@@ -124,10 +120,10 @@ def generate_site(data: dict):
         "app_url": APP_URL,
         "chat_url": CHAT_URL,
     }
-    jinja2.Template(open(HOMEPAGE_TMPL).read()).stream(**vars).dump(
-        HOMEPAGE_DEST
-    )
+    jinja2.Template(open(HOMEPAGE_TMPL).read()).stream(**vars).dump(HOMEPAGE_DEST)
     jinja2.Template(open(ABOUT_TMPL).read()).stream(**vars).dump(ABOUT_DEST)
+    with open(DATA_DEST, "w") as f:
+        json.dump(data, f, indent=2)
 
 
 def main():
