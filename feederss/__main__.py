@@ -123,7 +123,7 @@ def generate_site(data: dict):
     jinja2.Template(open(HOMEPAGE_TMPL).read()).stream(**vars).dump(HOMEPAGE_DEST)
     jinja2.Template(open(ABOUT_TMPL).read()).stream(**vars).dump(ABOUT_DEST)
     with open(DATA_DEST, "w") as f:
-        json.dump(data, f, indent=2)
+        json.dump(data, f, indent=2, default=str)
 
 
 def main():
