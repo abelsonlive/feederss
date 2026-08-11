@@ -3,7 +3,7 @@ feederss
 
 A sidekick for [miniflux](https://miniflux.app/), an open-source RSS reader, which promotes social RSS.
 
-see it in action: https://feederss.abelson.live/index.html
+see it in action: https://feederss.abelson.live
 
 feederss reads a miniflux database directly and renders a small static site —
 who subscribes to what, which categories they keep, and what's been starred
@@ -158,13 +158,24 @@ site, and the details bite:
   in front, because the bucket endpoint only presents the provider's own
   wildcard certificate.
 
-On DigitalOcean Spaces specifically these pull in opposite directions: the
-`<bucket>.<region>-static.digitaloceanspaces.com` endpoint honors the index
-document but only has a `*.<region>-static.digitaloceanspaces.com` cert, while
-the CDN endpoint terminates TLS for your own domain but fronts the origin
-endpoint, so `/` 403s and you have to link `/index.html` explicitly. The CDN
-refuses to take the `-static` host as an origin, so you pick one or put
-something like Cloudflare in front of both.
+The site links its own pages as `/`, so it needs a host that serves an index
+document there.
+
+AWS satisfies all three at once, which is what this is deployed on: enable
+static website hosting on the bucket, make it public with a bucket policy
+(*not* per-object ACLs, which modern buckets reject), then put CloudFront in
+front with the **website** endpoint — `<bucket>.s3-website.<region>.amazonaws.com`
+— as a *custom* origin over plain HTTP, plus an ACM cert for your domain. The
+website endpoint is what supplies the index document; CloudFront supplies the
+certificate.
+
+Not every provider lets you combine them. DigitalOcean Spaces, for instance,
+pulls in opposite directions: the `<bucket>.<region>-static.digitaloceanspaces.com`
+endpoint honors the index document but only presents a
+`*.<region>-static.digitaloceanspaces.com` cert, while the CDN endpoint
+terminates TLS for your own domain but fronts the *origin* endpoint, so `/`
+403s. Its CDN refuses to take the `-static` host as an origin, so you can't
+have both without putting something like Cloudflare in front.
 
 ## releases
 
