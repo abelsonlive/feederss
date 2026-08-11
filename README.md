@@ -126,17 +126,15 @@ The container is deployed as a sidecar inside miniflux's compose project in
 `ansible/roles/miniflux/defaults/main.yml`, with the Spaces credentials in
 `vault_feederss`.
 
-To ship a change:
+To ship a change: merge to `main` here, let CI push the image, then in
+home.abelson.live run
 
 ```bash
-# 1. merge to main here, and let CI push the image
-# 2. in home.abelson.live, pin the new tag:
-#    ansible/roles/miniflux/defaults/main.yml → feederss_version: <short-sha>
-# 3. roll it out:
 make update HOST=the-gibson SERVICE=miniflux
 ```
 
-Rolling back is pinning a previous short SHA and re-running that last command.
-Pin a real SHA rather than leaving `feederss_version: latest` — the deploy
-pulls with `pull: missing`, so a `latest` that already exists on the host is
-never re-pulled.
+The deploy tracks `:latest` and force-pulls, so there's no tag to bump. To
+roll back, pin the previous short SHA in
+`ansible/roles/miniflux/defaults/main.yml` (`feederss_version`) and re-run
+that command — every CI run pushes a SHA tag alongside `latest` for exactly
+this.
