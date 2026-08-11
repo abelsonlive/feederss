@@ -19,9 +19,11 @@
             <a href="/" alt="feederss home">
                 <strong>feederss</strong>
             </a> •
-            <a class="header-link" href="{{ chat_url }}" alt="signal chat">
+            {% if chat_url %}
+            <a class="header-link" href="{{ chat_url }}" alt="chat">
                 💬
             </a> •
+            {% endif %}
             <a class="header-link" href="/about.html">
                 ❔
             </a>

@@ -1,7 +1,7 @@
 # Builds the feederss container image and pushes it to this project's GitLab
 # Container Registry. The site itself is no longer built here — it is rendered
-# and pushed to object storage by the container, which runs as a sidecar next
-# to miniflux (see README.md).
+# and pushed to object storage by the container, which runs as a sidecar
+# alongside miniflux (see README.md).
 stages:
   - test
   - build
@@ -38,10 +38,9 @@ build:
 # Default branch: build and publish. $CI_REGISTRY_USER/$CI_REGISTRY_PASSWORD
 # are the job token, injected by GitLab — no secrets to configure.
 #
-# Both tags are pushed on purpose: :latest for a manual/first deploy, and the
-# short SHA as the thing the homelab actually pins (feederss_version in
-# ansible/roles/miniflux/defaults/main.yml), so a rollback is redeploying a
-# previous known-good SHA rather than whatever :latest resolves to today.
+# Both tags are pushed on purpose: :latest to track, and an immutable short
+# SHA so a deployment can pin an exact build — which is what makes a rollback
+# "redeploy this known-good SHA" rather than "hope :latest is good again".
 publish:
   extends: .docker
   stage: build

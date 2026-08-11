@@ -14,8 +14,8 @@ It runs as a sidecar container next to miniflux, refreshing on an interval.
 ## how it works
 
 ```
-miniflux-postgres ──► feederss ──► DigitalOcean Spaces ──► feederss.abelson.live
-                     (every hour)      (bucket: feederss)
+miniflux's postgres ──► feederss ──► object storage ──► your static site
+                       (every hour)
 ```
 
 1. `build` queries the miniflux database and renders `public/index.html`,
@@ -30,7 +30,7 @@ miniflux-postgres ──► feederss ──► DigitalOcean Spaces ──► fee
 ## configuration
 
 Everything is environment variables, read from the real environment or from a
-`.env` file in the working directory.
+`.env` file in the working directory. Start from `.env.example`.
 
 ### required
 
@@ -38,7 +38,6 @@ Everything is environment variables, read from the real environment or from a
 | --- | --- |
 | `DB_URL` | Postgres connection string for the **miniflux** database |
 | `APP_URL` | URL of your miniflux instance, linked from the site header |
-| `CHAT_URL` | URL the header's chat icon points at |
 
 ### required to publish
 
@@ -46,16 +45,17 @@ Not needed for `build`.
 
 | variable | default | what it is |
 | --- | --- | --- |
-| `S3_ACCESS_KEY_ID` | — | Spaces access key |
-| `S3_SECRET_ACCESS_KEY` | — | Spaces secret key |
-| `S3_BUCKET` | `feederss` | bucket to publish into |
-| `S3_REGION` | `nyc3` | region |
-| `S3_ENDPOINT_URL` | `https://$S3_REGION.digitaloceanspaces.com` | any S3-compatible endpoint |
+| `S3_BUCKET` | — | bucket to publish into |
+| `S3_ACCESS_KEY_ID` | — | access key |
+| `S3_SECRET_ACCESS_KEY` | — | secret key |
+| `S3_ENDPOINT_URL` | *(AWS S3)* | set for any S3-compatible provider — DigitalOcean Spaces, Cloudflare R2, MinIO, … |
+| `S3_REGION` | `us-east-1` | region, where the provider uses one |
 
 ### optional
 
 | variable | default | what it is |
 | --- | --- | --- |
+| `CHAT_URL` | *(none)* | chat link in the site header; omit it and the link isn't rendered |
 | `REFRESH_INTERVAL_SECONDS` | `3600` | how long `loop` sleeps between runs |
 | `PUBLIC_DIR` | `./public` | where the site is rendered |
 | `S3_PREFIX` | *(none)* | publish under a key prefix instead of the bucket root |
@@ -79,12 +79,12 @@ make watch            # rebuild whenever feederss/ changes (needs entr)
 make publish          # render AND sync to object storage
 ```
 
-`make build` needs to reach the miniflux database. Miniflux's Postgres isn't
-published outside its Docker network, so from a laptop that means tunneling to
-it first:
+`make build` needs to reach the miniflux database. Miniflux's Postgres usually
+isn't published outside its Docker network, so from a workstation that means
+tunnelling to it first:
 
 ```bash
-ssh -L 5432:localhost:5432 the-gibson   # or wherever miniflux runs
+ssh -L 5432:localhost:5432 your-miniflux-host
 # then in .env:
 # DB_URL=postgres://<user>:<password>@localhost:5432/<db>?sslmode=disable
 ```
@@ -92,8 +92,8 @@ ssh -L 5432:localhost:5432 the-gibson   # or wherever miniflux runs
 ## docker
 
 ```bash
-make docker-build                     # build the image
-make docker-run                       # run it against your .env
+make docker-build     # build the image
+make docker-run       # run it against your .env
 ```
 
 The image runs `python -m feederss loop` as a non-root user and ships a
@@ -109,32 +109,53 @@ gives docker nothing to healthcheck against.
 Each subcommand is also runnable directly:
 
 ```bash
-docker run --rm --env-file .env registry.gitlab.com/abelsonlive/feederss python -m feederss publish
+docker run --rm --env-file .env registry.gitlab.com/abelsonlive/feederss \
+  python -m feederss publish
 ```
 
-## deployment
+## deploying alongside miniflux
 
-CI (`.gitlab-ci.yml`) builds the image on every push and, on the default
-branch, pushes it to this project's container registry as both
-`registry.gitlab.com/abelsonlive/feederss:<short-sha>` and `:latest`. No
-secrets to configure — it authenticates with the built-in job token. The
-project is public, so the images pull anonymously.
+Add it to miniflux's own compose project, so it can reach miniflux's Postgres
+over the compose network. It publishes outward only — no ports, no reverse
+proxy, nothing to route:
 
-The container is deployed as a sidecar inside miniflux's compose project in
-[home.abelson.live](https://github.com/abelsonlive/home.abelson.live):
-`compose/miniflux/docker-compose.yml.j2`, configured by
-`ansible/roles/miniflux/defaults/main.yml`, with the Spaces credentials in
-`vault_feederss`.
+```yaml
+services:
+  miniflux:
+    image: miniflux/miniflux:latest
+    # ...
 
-To ship a change: merge to `main` here, let CI push the image, then in
-home.abelson.live run
+  miniflux-postgres:
+    image: postgres:16-alpine
+    # ...
 
-```bash
-make update HOST=the-gibson SERVICE=miniflux
+  feederss:
+    image: registry.gitlab.com/abelsonlive/feederss:latest
+    restart: unless-stopped
+    environment:
+      DB_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@miniflux-postgres/${POSTGRES_DB}?sslmode=disable
+      APP_URL: https://miniflux.example.com
+      REFRESH_INTERVAL_SECONDS: "3600"
+      S3_BUCKET: your-bucket
+      S3_ENDPOINT_URL: https://nyc3.digitaloceanspaces.com
+      S3_REGION: nyc3
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+    depends_on:
+      miniflux-postgres:
+        condition: service_healthy
 ```
 
-The deploy tracks `:latest` and force-pulls, so there's no tag to bump. To
-roll back, pin the previous short SHA in
-`ansible/roles/miniflux/defaults/main.yml` (`feederss_version`) and re-run
-that command — every CI run pushes a SHA tag alongside `latest` for exactly
-this.
+Then point a domain at the bucket. Object storage providers differ in how they
+serve a static site — most need an explicit website configuration (an index
+document) before `/` returns `index.html` rather than a listing or a 403, and
+custom-domain HTTPS usually means putting the provider's CDN or another proxy
+in front.
+
+## releases
+
+CI builds the image on every push and, on the default branch, pushes it to
+this project's container registry as both
+`registry.gitlab.com/abelsonlive/feederss:<short-sha>` and `:latest`. It
+authenticates with GitLab's built-in job token, so there is nothing to
+configure. The project is public, so the images pull anonymously.

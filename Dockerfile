@@ -17,14 +17,12 @@ COPY public/ ./public/
 RUN useradd --create-home --uid 10001 feederss && chown -R feederss:feederss /app
 USER feederss
 
-# Config. Everything below has a working default; the three variables with no
-# default (DB_URL, APP_URL, CHAT_URL) plus the S3 credentials must be supplied
-# at run time — see README.md.
+# Container-specific paths and the refresh cadence. Everything else — DB_URL,
+# APP_URL, the S3 bucket and credentials — has no sensible default and must be
+# supplied at run time. See README.md.
 ENV PUBLIC_DIR=/app/public \
     HEARTBEAT_FILE=/tmp/feederss-heartbeat \
-    REFRESH_INTERVAL_SECONDS=3600 \
-    S3_BUCKET=feederss \
-    S3_REGION=nyc3
+    REFRESH_INTERVAL_SECONDS=3600
 
 # start-period covers the first build+publish, which is the slow one (nothing
 # in the bucket matches yet, so every object uploads)

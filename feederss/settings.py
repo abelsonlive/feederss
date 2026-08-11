@@ -32,12 +32,13 @@ def _env_bool(name: str, default: bool) -> bool:
 APP_URL = os.getenv("APP_URL")
 if not APP_URL:
     raise Exception("APP_URL environment variable is not set")
-CHAT_URL = os.getenv("CHAT_URL")
-if not CHAT_URL:
-    raise Exception("CHAT_URL environment variable is not set")
 DB_URL = os.getenv("DB_URL")
 if not DB_URL:
     raise Exception("DB_URL environment variable is not set")
+
+# Optional. When unset, the chat link is left out of the site header
+# entirely rather than rendered as a dead link.
+CHAT_URL = os.getenv("CHAT_URL") or None
 
 
 # Number of entries to show in different parts of the app
@@ -58,13 +59,18 @@ REFRESH_INTERVAL_SECONDS = _env_int("REFRESH_INTERVAL_SECONDS", 3600)
 # wedged daemon apart from a healthy one that is merely sleeping.
 HEARTBEAT_FILE = os.getenv("HEARTBEAT_FILE", "/tmp/feederss-heartbeat")
 
-# S3-compatible object storage (DigitalOcean Spaces). Only needed to publish —
-# `python -m feederss build` works without any of these set.
-S3_BUCKET = os.getenv("S3_BUCKET", "feederss")
-S3_REGION = os.getenv("S3_REGION", "nyc3")
-S3_ENDPOINT_URL = os.getenv(
-    "S3_ENDPOINT_URL", f"https://{S3_REGION}.digitaloceanspaces.com"
-)
+# S3-compatible object storage. Only needed to publish — `python -m feederss
+# build` works without any of these set.
+S3_BUCKET = os.getenv("S3_BUCKET")
+
+# Leave unset for AWS S3 itself; set it to point at any S3-compatible
+# provider, e.g. https://nyc3.digitaloceanspaces.com (DigitalOcean Spaces),
+# https://<account>.r2.cloudflarestorage.com (Cloudflare R2), or a MinIO host.
+S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL") or None
+
+# Providers that don't use regions generally accept the S3 default.
+S3_REGION = os.getenv("S3_REGION", "us-east-1")
+
 S3_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY_ID")
 S3_SECRET_ACCESS_KEY = os.getenv("S3_SECRET_ACCESS_KEY")
 
@@ -96,7 +102,6 @@ def require_s3_settings():
         name
         for name, value in (
             ("S3_BUCKET", S3_BUCKET),
-            ("S3_ENDPOINT_URL", S3_ENDPOINT_URL),
             ("S3_ACCESS_KEY_ID", S3_ACCESS_KEY_ID),
             ("S3_SECRET_ACCESS_KEY", S3_SECRET_ACCESS_KEY),
         )
