@@ -169,6 +169,15 @@ front with the **website** endpoint — `<bucket>.s3-website.<region>.amazonaws.
 website endpoint is what supplies the index document; CloudFront supplies the
 certificate.
 
+One more thing worth setting while you're there: `data.json` is a public
+read-only dump of everything the site renders, and it's genuinely useful to
+read from elsewhere. Doing that from a browser needs an
+`Access-Control-Allow-Origin` header, which object stores don't send by
+default. On S3 that's a bucket CORS rule (`GET`/`HEAD`) — and if you're behind
+a CDN, the CDN has to both send the header *and* forward `Origin` plus
+`Access-Control-Request-*` upstream, or preflight requests fail even though
+plain `GET` looks fine.
+
 Not every provider lets you combine them. DigitalOcean Spaces, for instance,
 pulls in opposite directions: the `<bucket>.<region>-static.digitaloceanspaces.com`
 endpoint honors the index document but only presents a
