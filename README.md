@@ -59,7 +59,7 @@ Not needed for `build`.
 | `REFRESH_INTERVAL_SECONDS` | `3600` | how long `loop` sleeps between runs |
 | `PUBLIC_DIR` | `./public` | where the site is rendered |
 | `S3_PREFIX` | *(none)* | publish under a key prefix instead of the bucket root |
-| `S3_ACL` | `public-read` | canned ACL for uploaded objects |
+| `S3_ACL` | *(none)* | canned ACL for uploaded objects. Left unset, no ACL is sent, which is what modern S3 buckets require (ACLs are disabled by default there, and public access comes from a bucket policy). Set `public-read` for providers that still expect per-object ACLs, like DigitalOcean Spaces |
 | `S3_DELETE_ORPHANS` | `true` | delete bucket objects the generator no longer produces |
 | `S3_HTML_CACHE_CONTROL` | `public, max-age=300` | `Cache-Control` for `.html`/`.json` |
 | `S3_ASSET_CACHE_CONTROL` | `public, max-age=3600` | `Cache-Control` for css/js/images |

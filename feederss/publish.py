@@ -146,14 +146,18 @@ def publish(source_dir: str = None):
             skipped += 1
             continue
         with open(path, "rb") as body:
-            client.put_object(
-                Bucket=S3_BUCKET,
-                Key=key,
-                Body=body,
-                ACL=S3_ACL,
-                ContentType=content_type_for(path),
-                CacheControl=cache_control_for(path),
-            )
+            kwargs = {
+                "Bucket": S3_BUCKET,
+                "Key": key,
+                "Body": body,
+                "ContentType": content_type_for(path),
+                "CacheControl": cache_control_for(path),
+            }
+            # only sent when explicitly configured — a bucket with ACLs
+            # disabled rejects the request outright rather than ignoring it
+            if S3_ACL:
+                kwargs["ACL"] = S3_ACL
+            client.put_object(**kwargs)
         print(f"  ↑ {key}")
         uploaded += 1
 

@@ -77,9 +77,13 @@ S3_SECRET_ACCESS_KEY = os.getenv("S3_SECRET_ACCESS_KEY")
 # Optional key prefix, if the site should live under a "subdirectory"
 S3_PREFIX = os.getenv("S3_PREFIX", "").strip("/")
 
-# Canned ACL applied to every uploaded object. The site is served straight out
-# of the bucket, so the objects have to be world-readable.
-S3_ACL = os.getenv("S3_ACL", "public-read")
+# Canned ACL applied to every uploaded object. Empty by default, meaning no
+# ACL is sent at all: modern S3 buckets default to "bucket owner enforced"
+# object ownership, which disables ACLs outright and rejects any request that
+# carries one (AccessControlListNotSupported). Those buckets serve the site
+# publicly via a bucket policy instead. Set this to "public-read" for
+# providers that still expect per-object ACLs, such as DigitalOcean Spaces.
+S3_ACL = os.getenv("S3_ACL", "") or None
 
 # Cache-Control for the generated HTML/JSON vs. the static assets. HTML is
 # short-lived because it is rewritten on every refresh; the assets change only
