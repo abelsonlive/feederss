@@ -16,7 +16,10 @@
                 <img src="/img/mini-flux-icon.png" width="24" height="24" alt="{{ app_url }}"
                     style="vertical-align: middle; margin-right: 0.125em;" />
             </a> •
-            <a href="/" alt="feederss home">
+            {# /index.html rather than / — a bare / depends on the host serving
+               an index document, which not every object store does. This form
+               works either way. #}
+            <a href="/index.html" alt="feederss home">
                 <strong>feederss</strong>
             </a> •
             {% if chat_url %}

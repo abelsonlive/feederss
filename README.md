@@ -3,7 +3,7 @@ feederss
 
 A sidekick for [miniflux](https://miniflux.app/), an open-source RSS reader, which promotes social RSS.
 
-see it in action: https://feederss.abelson.live
+see it in action: https://feederss.abelson.live/index.html
 
 feederss reads a miniflux database directly and renders a small static site —
 who subscribes to what, which categories they keep, and what's been starred
@@ -146,11 +146,25 @@ services:
         condition: service_healthy
 ```
 
-Then point a domain at the bucket. Object storage providers differ in how they
-serve a static site — most need an explicit website configuration (an index
-document) before `/` returns `index.html` rather than a listing or a 403, and
-custom-domain HTTPS usually means putting the provider's CDN or another proxy
-in front.
+Then point a domain at the bucket. Providers differ in how they serve a static
+site, and the details bite:
+
+- Most need an explicit **website configuration** (an index document) before
+  `/` returns `index.html` instead of a listing or a 403. On S3 that's
+  `PutBucketWebsite`; the same call works on S3-compatible providers.
+- Website endpoints usually route by **Host header**, which means the bucket
+  has to be *named* after the domain (`feederss.example.com`, not `feederss`).
+- **Custom-domain HTTPS** generally needs the provider's CDN or another proxy
+  in front, because the bucket endpoint only presents the provider's own
+  wildcard certificate.
+
+On DigitalOcean Spaces specifically these pull in opposite directions: the
+`<bucket>.<region>-static.digitaloceanspaces.com` endpoint honors the index
+document but only has a `*.<region>-static.digitaloceanspaces.com` cert, while
+the CDN endpoint terminates TLS for your own domain but fronts the origin
+endpoint, so `/` 403s and you have to link `/index.html` explicitly. The CDN
+refuses to take the `-static` host as an origin, so you pick one or put
+something like Cloudflare in front of both.
 
 ## releases
 
