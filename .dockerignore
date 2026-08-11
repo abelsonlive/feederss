@@ -1,0 +1,14 @@
+.git
+.gitignore
+.gitlab-ci.yml
+.venv
+.env
+**/__pycache__
+**/*.pyc
+**/.DS_Store
+README.md
+Makefile
+
+# regenerated on every run — never ship a stale copy in the image
+public/*.html
+public/data.json

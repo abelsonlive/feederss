@@ -1,15 +1,58 @@
-image: python:3.9
+# Builds the feederss container image and pushes it to this project's GitLab
+# Container Registry. The site itself is no longer built here — it is rendered
+# and pushed to object storage by the container, which runs as a sidecar next
+# to miniflux (see README.md).
+stages:
+  - test
+  - build
 
-before_script:
-  - make install
+variables:
+  # docker-in-docker over TLS, per GitLab's documented dind setup
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  DOCKER_BUILDKIT: 1
 
-pages:
-  stage: deploy
+lint:
+  stage: test
+  image: python:3.12-slim
   script:
-    - make build
-  artifacts:
-    paths:
-      - public
-  only:
-    variables:
-      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - python -m compileall -q feederss
+
+.docker:
+  image: docker:27-cli
+  services:
+    - docker:27-dind
+
+# Merge requests and non-default branches: prove the image still builds, but
+# don't publish anything.
+build:
+  extends: .docker
+  stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+  script:
+    - docker build --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
+
+# Default branch: build and publish. $CI_REGISTRY_USER/$CI_REGISTRY_PASSWORD
+# are the job token, injected by GitLab — no secrets to configure.
+#
+# Both tags are pushed on purpose: :latest for a manual/first deploy, and the
+# short SHA as the thing the homelab actually pins (feederss_version in
+# ansible/roles/miniflux/defaults/main.yml), so a rollback is redeploying a
+# previous known-good SHA rather than whatever :latest resolves to today.
+publish:
+  extends: .docker
+  stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - docker build
+      --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+      --tag "$CI_REGISTRY_IMAGE:latest"
+      .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - echo "pushed $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"

@@ -4,6 +4,30 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def _env_int(name: str, default: int) -> int:
+    """
+    Read an integer environment variable, falling back to a default
+    """
+    value = os.getenv(name)
+    if value is None or value.strip() == "":
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        raise Exception(f"{name} must be an integer, got: {value!r}")
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    """
+    Read a boolean environment variable, falling back to a default
+    """
+    value = os.getenv(name)
+    if value is None or value.strip() == "":
+        return default
+    return value.strip().lower() in ("1", "true", "yes", "on")
+
+
 # Required environment variables
 APP_URL = os.getenv("APP_URL")
 if not APP_URL:
@@ -20,6 +44,69 @@ if not DB_URL:
 NUM_USER_STARRED_ENTRIES = os.getenv("NUM_USER_STARRED_ENTRIES", 10)
 NUM_RECENT_STARRED_ENTRIES = os.getenv("NUM_RECENT_STARRED_ENTRIES", 20)
 NUM_RECENTLY_ADDED_FEEDS = os.getenv("NUM_RECENTLY_ADDED_FEEDS", 20)
+
+# Where the generated site is written. Defaults to the repo's public/ dir,
+# which is also where the static assets (css/js/img) live.
+PUBLIC_DIR = os.path.abspath(
+    os.getenv("PUBLIC_DIR", os.path.join(os.path.dirname(__file__), "../public"))
+)
+
+# How long the daemon (`python -m feederss loop`) sleeps between runs
+REFRESH_INTERVAL_SECONDS = _env_int("REFRESH_INTERVAL_SECONDS", 3600)
+
+# Touched after every successful run so the container healthcheck can tell a
+# wedged daemon apart from a healthy one that is merely sleeping.
+HEARTBEAT_FILE = os.getenv("HEARTBEAT_FILE", "/tmp/feederss-heartbeat")
+
+# S3-compatible object storage (DigitalOcean Spaces). Only needed to publish —
+# `python -m feederss build` works without any of these set.
+S3_BUCKET = os.getenv("S3_BUCKET", "feederss")
+S3_REGION = os.getenv("S3_REGION", "nyc3")
+S3_ENDPOINT_URL = os.getenv(
+    "S3_ENDPOINT_URL", f"https://{S3_REGION}.digitaloceanspaces.com"
+)
+S3_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY_ID")
+S3_SECRET_ACCESS_KEY = os.getenv("S3_SECRET_ACCESS_KEY")
+
+# Optional key prefix, if the site should live under a "subdirectory"
+S3_PREFIX = os.getenv("S3_PREFIX", "").strip("/")
+
+# Canned ACL applied to every uploaded object. The site is served straight out
+# of the bucket, so the objects have to be world-readable.
+S3_ACL = os.getenv("S3_ACL", "public-read")
+
+# Cache-Control for the generated HTML/JSON vs. the static assets. HTML is
+# short-lived because it is rewritten on every refresh; the assets change only
+# when the repo does, but they are unhashed, so this stays modest.
+S3_HTML_CACHE_CONTROL = os.getenv("S3_HTML_CACHE_CONTROL", "public, max-age=300")
+S3_ASSET_CACHE_CONTROL = os.getenv("S3_ASSET_CACHE_CONTROL", "public, max-age=3600")
+
+# Delete objects in the bucket that no longer exist locally
+S3_DELETE_ORPHANS = _env_bool("S3_DELETE_ORPHANS", True)
+
+# Never uploaded, whatever ends up in public/
+S3_EXCLUDE = (".DS_Store", "Thumbs.db")
+
+
+def require_s3_settings():
+    """
+    Validate the settings needed to publish, raising with the missing names
+    """
+    missing = [
+        name
+        for name, value in (
+            ("S3_BUCKET", S3_BUCKET),
+            ("S3_ENDPOINT_URL", S3_ENDPOINT_URL),
+            ("S3_ACCESS_KEY_ID", S3_ACCESS_KEY_ID),
+            ("S3_SECRET_ACCESS_KEY", S3_SECRET_ACCESS_KEY),
+        )
+        if not value
+    ]
+    if missing:
+        raise Exception(
+            f"missing environment variable(s) required to publish: {', '.join(missing)}"
+        )
+
 
 # Icon to use if the feed icon is not available
 DEFAULT_ICON = """

@@ -1,6 +1,11 @@
 import os
+import argparse
 import base64
 import json
+import signal
+import sys
+import time
+import traceback
 from datetime import datetime
 from collections import defaultdict
 
@@ -8,7 +13,15 @@ import jinja2
 import psycopg2
 import psycopg2.extras
 
-from .settings import APP_URL, CHAT_URL, DB_URL, DEFAULT_ICON
+from .settings import (
+    APP_URL,
+    CHAT_URL,
+    DB_URL,
+    DEFAULT_ICON,
+    HEARTBEAT_FILE,
+    PUBLIC_DIR,
+    REFRESH_INTERVAL_SECONDS,
+)
 from .queries import (
     USERS_QUERY,
     ALL_FEEDS_QUERY,
@@ -19,10 +32,10 @@ from .queries import (
 
 # get absolute path of the template + homepage
 HOMEPAGE_TMPL = os.path.join(os.path.dirname(__file__), "./templates/index.html.j2")
-HOMEPAGE_DEST = os.path.join(os.path.dirname(__file__), "../public/index.html")
+HOMEPAGE_DEST = os.path.join(PUBLIC_DIR, "index.html")
 ABOUT_TMPL = os.path.join(os.path.dirname(__file__), "./templates/about.html.j2")
-ABOUT_DEST = os.path.join(os.path.dirname(__file__), "../public/about.html")
-DATA_DEST = os.path.join(os.path.dirname(__file__), "../public/data.json")
+ABOUT_DEST = os.path.join(PUBLIC_DIR, "about.html")
+DATA_DEST = os.path.join(PUBLIC_DIR, "data.json")
 
 
 def binary_to_base64(binary_data, content_type: str):
@@ -115,6 +128,7 @@ def generate_site(data: dict):
     """
     Generate the site using the data
     """
+    os.makedirs(PUBLIC_DIR, exist_ok=True)
     vars = {
         "data": data,
         "app_url": APP_URL,
@@ -126,14 +140,117 @@ def generate_site(data: dict):
         json.dump(data, f, indent=2, default=str)
 
 
-def main():
+def build():
+    """
+    Query the database and render the site into PUBLIC_DIR
+    """
     print("🍦" * 24)
     print(
         f"😋 Generating feederss [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]  😋"
     )
     print("🍦" * 24)
     generate_site(get_site_data())
+    print(f"📁 wrote site to {PUBLIC_DIR}")
+
+
+def build_and_publish():
+    """
+    Render the site and sync it to object storage
+    """
+    # imported lazily so `build` keeps working without boto3 installed
+    from .publish import publish
+
+    build()
+    publish()
+
+
+def touch_heartbeat():
+    """
+    Record a successful run for the container healthcheck to read
+    """
+    try:
+        with open(HEARTBEAT_FILE, "w") as f:
+            f.write(str(int(time.time())))
+    except OSError as e:
+        # a heartbeat we can't write is not worth failing a good run over
+        print(f"⚠️  could not write heartbeat to {HEARTBEAT_FILE}: {e}")
+
+
+def loop():
+    """
+    Build and publish on a fixed interval until asked to stop.
+
+    Deliberately a sleep loop rather than cron: cron in a container needs the
+    environment exported into a crontab by hand (it does not inherit the
+    container's env), logs somewhere other than stdout, and gives docker no
+    way to distinguish "sleeping" from "wedged". This gives all three for
+    free, at the cost of drift between runs that does not matter here.
+    """
+    stopping = {"now": False}
+
+    def handle_signal(signum, _frame):
+        print(f"👋 got signal {signum}, finishing up")
+        stopping["now"] = True
+
+    signal.signal(signal.SIGTERM, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
+
+    print(f"🔁 refreshing every {REFRESH_INTERVAL_SECONDS}s")
+    while not stopping["now"]:
+        try:
+            build_and_publish()
+            touch_heartbeat()
+        except Exception:
+            # one bad run (miniflux's postgres restarting, a Spaces blip)
+            # should not take the daemon down — log it and try again next tick
+            traceback.print_exc()
+            print("💥 refresh failed, retrying next interval")
+
+        # sleep in short slices so a SIGTERM doesn't wait out the interval
+        deadline = time.monotonic() + REFRESH_INTERVAL_SECONDS
+        while not stopping["now"] and time.monotonic() < deadline:
+            time.sleep(min(5, deadline - time.monotonic()))
+
+    print("🛑 stopped")
+
+
+def healthcheck():
+    """
+    Exit non-zero if the last successful run is older than one interval
+    (plus a grace period for the run itself)
+    """
+    grace = REFRESH_INTERVAL_SECONDS * 2
+    try:
+        age = time.time() - os.path.getmtime(HEARTBEAT_FILE)
+    except OSError:
+        print(f"no heartbeat at {HEARTBEAT_FILE} yet")
+        return 1
+    if age > grace:
+        print(f"last successful refresh was {int(age)}s ago (limit {grace}s)")
+        return 1
+    print(f"last successful refresh was {int(age)}s ago")
+    return 0
+
+
+def main():
+    parser = argparse.ArgumentParser(prog="feederss")
+    subparsers = parser.add_subparsers(dest="command")
+    subparsers.add_parser("build", help="render the site into PUBLIC_DIR")
+    subparsers.add_parser("publish", help="render the site and sync it to S3")
+    subparsers.add_parser("loop", help="publish every REFRESH_INTERVAL_SECONDS")
+    subparsers.add_parser("healthcheck", help="check the daemon's last run")
+    args = parser.parse_args()
+
+    # bare `python -m feederss` stays what it always was: a local build
+    commands = {
+        None: build,
+        "build": build,
+        "publish": build_and_publish,
+        "loop": loop,
+        "healthcheck": healthcheck,
+    }
+    return commands[args.command]()
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
