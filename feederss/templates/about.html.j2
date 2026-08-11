@@ -32,7 +32,57 @@
         </span>
         <hr />
     </div>
-    <p> To come... </p>
+    <div class="about">
+        <h3>what is this?</h3>
+        <p>
+            feederss is a window into what a small group of people are actually reading. It reads from a shared
+            <a href="https://miniflux.app/">miniflux</a> instance and shows who subscribes to what, which feeds
+            are new, and what everyone has been starring lately.
+        </p>
+
+        <h3>why?</h3>
+        <p>
+            Most reading recommendations now arrive by algorithm, tuned for engagement rather than for your taste.
+            The older way still works better: find out what people you like are reading, then go read that.
+        </p>
+        <p>
+            RSS makes that possible without asking anyone's permission. Feeds are just files. Nobody ranks them,
+            nobody slips ads into them, and nobody decides you should see something else instead. Self hosting the
+            reader means the reading list belongs to the people using it, rather than to a platform that might
+            pivot, decay, or quietly disappear.
+        </p>
+        <p>
+            RSS never had a social layer. This is a small one: a way to browse each other's shelves.
+        </p>
+
+        <h3>tips</h3>
+        <ul>
+            <li>
+                Almost everything has a feed, even when it does not advertise one. Every Substack does (add
+                <code>/feed</code> to the URL). So does every subreddit (add <code>.rss</code>).
+            </li>
+            <li>
+                For newsletters that only ever arrive by email,
+                <a href="https://kill-the-newsletter.com/">kill-the-newsletter.com</a> hands you an address that
+                turns into a feed.
+            </li>
+            <li>
+                miniflux has a bookmarklet that subscribes to whatever site you are looking at. Grab it from
+                Settings, then Integrations.
+            </li>
+            <li>
+                Use categories. feederss groups each person's feeds by category, so a little tidying makes your
+                shelf much nicer for everyone else to browse.
+            </li>
+        </ul>
+
+        <h3>run your own</h3>
+        <p>
+            feederss is open source, and runs as a small container alongside miniflux. Source code and setup
+            instructions live at
+            <a href="https://gitlab.com/abelsonlive/feederss">gitlab.com/abelsonlive/feederss</a>.
+        </p>
+    </div>
 </body>
 
 </html>
