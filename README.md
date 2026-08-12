@@ -3,11 +3,9 @@ feederss
 
 A sidekick for [miniflux](https://miniflux.app/), an open-source RSS reader, which promotes social RSS.
 
-see it in action: https://feederss.abelson.live
+See it in action: https://feederss.abelson.live
 
-feederss reads a miniflux database directly and renders a small static site —
-who subscribes to what, which categories they keep, and what's been starred
-recently — then syncs that site to S3-compatible object storage.
+feederss reads a miniflux database directly and renders a small static site summarizing who subscribes to what, which categories they've configured, which articles they've starred, and then syncs that site to S3-compatible object storage.
 
 It runs as a sidecar container next to miniflux, refreshing on an interval.
 
@@ -30,7 +28,7 @@ miniflux's postgres ──► feederss ──► object storage ──► your s
 ## configuration
 
 Everything is environment variables, read from the real environment or from a
-`.env` file in the working directory. Start from `.env.example`.
+`.env` file in the working directory. Start from [`.env.example`](.env.example)
 
 ### required
 
@@ -55,7 +53,7 @@ Not needed for `build`.
 
 | variable | default | what it is |
 | --- | --- | --- |
-| `CHAT_URL` | *(none)* | chat link in the site header; omit it and the link isn't rendered |
+| `CHAT_URL` | *(none)* | chat link in the site header; omit it and the link isn't rendered. this could be a signal group, discord channel, etc. |
 | `REFRESH_INTERVAL_SECONDS` | `3600` | how long `loop` sleeps between runs |
 | `PUBLIC_DIR` | `./public` | where the site is rendered |
 | `S3_PREFIX` | *(none)* | publish under a key prefix instead of the bucket root |
@@ -146,8 +144,38 @@ services:
         condition: service_healthy
 ```
 
-Then point a domain at the bucket. Providers differ in how they serve a static
-site, and the details bite:
+If you want to add a link to feederss in the header, you can add this javascript snippet in Miniflux's settings:
+
+```js
+// ==UserScript==
+// @name         Miniflux: feederss link
+// @match        https://rss.abelson.live/*
+// @grant        none
+// @run-at       document-end
+// ==/UserScript==
+
+(() => {
+  const HREF  = 'https://feederss.abelson.live';
+  const LABEL = '😋😋😋';
+
+  const menu = document.querySelector('#header-menu');
+  if (!menu) return;
+
+  const a = document.createElement('a');
+  a.href = HREF;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  a.textContent = LABEL;
+
+  const li = document.createElement('li');
+  li.append(a);
+  menu.append(li);
+})();
+```
+
+## configuring a custom domain
+
+Providers differ in how they serve a static site:
 
 - Most need an explicit **website configuration** (an index document) before
   `/` returns `index.html` instead of a listing or a 403. On S3 that's
