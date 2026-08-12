@@ -3,7 +3,7 @@ feederss
 
 A sidekick for [miniflux](https://miniflux.app/), an open-source RSS reader, which promotes social RSS.
 
-See it in action: https://feederss.abelson.live
+![feederss.gif](./assets/feederss.gif)
 
 feederss reads a miniflux database directly and renders a small static site summarizing who subscribes to what, which categories they've configured, which articles they've starred, and then syncs that site to S3-compatible object storage.
 
@@ -149,13 +149,13 @@ If you want to add a link to feederss in the header, you can add this javascript
 ```js
 // ==UserScript==
 // @name         Miniflux: feederss link
-// @match        https://rss.abelson.live/*
+// @match        https://rss.abelson.live/* // INSERT THE DOMAIN FOR MINIFLUX HERE
 // @grant        none
 // @run-at       document-end
 // ==/UserScript==
 
 (() => {
-  const HREF  = 'https://feederss.abelson.live';
+  const HREF  = 'https://feederss.abelson.live'; // INSERT THE DOMAIN FOR FEEDERSS HERE
   const LABEL = '😋😋😋';
 
   const menu = document.querySelector('#header-menu');
